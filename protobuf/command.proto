@@ -1,0 +1,50 @@
+syntax = "proto3";
+package tmp;
+message Command {
+  oneof command {
+    RandomCommand random_command = 2;
+    IdCommand id_command = 3;
+    WriterCommand writer_command = 4;
+  }
+}
+
+message RandomCommand {
+  bytes seed = 1;
+}
+
+message IdCommand {
+  string old_id = 1;
+  string new_id = 2;
+}
+
+message WriterCommand {
+  string id = 1;
+  bytes command = 2;
+}
+
+service RoomService {
+  rpc debug(DebugRequest) returns (DebugResponse) {}
+}
+
+
+message DebugRequest {
+  bytes b = 1;
+  string s = 2;
+  uint32 i32 = 3;
+  uint64 i64 = 4;
+  oneof oo {
+    uint32 oi32 = 5;
+    uint64 oi64 = 6;
+  }
+}
+
+message DebugResponse {
+  bytes b = 1;
+  string s = 2;
+  uint32 i32 = 3;
+  uint64 i64 = 4;
+  oneof oo {
+    uint32 oi32 = 5;
+    uint64 oi64 = 6;
+  }
+}
