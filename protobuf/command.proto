@@ -2,14 +2,14 @@ syntax = "proto3";
 package tmp;
 message Command {
   oneof command {
-    RandomCommand random_command = 2;
+    TickCommand tick_command = 2;
     IdCommand id_command = 3;
     WriterCommand writer_command = 4;
   }
 }
 
-message RandomCommand {
-  bytes seed = 1;
+message TickCommand {
+  bytes random_seed = 1;
 }
 
 message IdCommand {
@@ -22,9 +22,9 @@ message WriterCommand {
   bytes command = 2;
 }
 
-service RoomService {
-  rpc debug(DebugRequest) returns (DebugResponse) {}
-}
+/* service RoomService { */
+/*   rpc debug(DebugRequest) returns (DebugResponse) {} */
+/* } */
 
 
 message DebugRequest {
@@ -38,13 +38,56 @@ message DebugRequest {
   }
 }
 
-message DebugResponse {
-  bytes b = 1;
-  string s = 2;
-  uint32 i32 = 3;
-  uint64 i64 = 4;
-  oneof oo {
-    uint32 oi32 = 5;
-    uint64 oi64 = 6;
-  }
+/* message DebugResponse { */
+/*   bytes b = 1; */
+/*   string s = 2; */
+/*   uint32 i32 = 3; */
+/*   uint64 i64 = 4; */
+/*   oneof oo { */
+/*     uint32 oi32 = 5; */
+/*     uint64 oi64 = 6; */
+/*   } */
+/* } */
+
+message RoomSetting {
+  TickSetting tick_setting = 1;
 }
+
+message TickSetting {
+  // number of bytes
+  uint32 size = 1;
+  uint32 frequency_millis = 2;
+}
+
+/* message UpdateSetting { */
+/*   bool setting = 1; */
+/*   bool write_identity = 2; */
+/*   bool read_identity = 3; */
+/* } */
+
+/* message Permission { */
+/*   // empty means everyone is allowed */
+/*   repeated Identity allowed_identities = 1; */
+ 
+/*   // 0 means everyone is allowed */
+/*   uint32 max_user =2; */
+/* } */
+
+/* message Identity { */
+/*   oneof identity { */
+/*     CryptoIdentity crypto_identity = 1; */
+/*   } */
+/* } */
+
+/* message CryptoIdentity { */
+/*   enum Type { */
+/*     unspecified = 0; */
+/*     curve_25519 = 1; */
+/*   } */
+/*   Type type = 1; */
+/*   string base64 = 2; */
+/* } */
+
+/* message PublicIdentity { */
+/*   string name = 1; */
+/* } */

@@ -57,8 +57,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	roomServer := NewRoomServer()
+	roomServer := NewRoomServer(nil)
 	http.HandleFunc("/", serveHome)
 	http.Handle("/ws", roomServer.GetHandler())
-	log.Fatal(http.ListenAndServe(*addr, nil))
+	log.Fatal(http.ListenAndServeTLS(*addr, "../../../tmpr/server.crt", "../../../tmpr/server.key", nil))
 }
