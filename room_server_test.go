@@ -3,10 +3,11 @@ package main
 import (
 	proto "github.com/golang/protobuf/proto"
 	//"github.com/gorilla/websocket"
+	"testing"
+	tmp "wsrpcgo/protobuf"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"testing"
-	"wsrpcgo/protobuf"
 )
 
 func TestRoomServerSuite(t *testing.T) {

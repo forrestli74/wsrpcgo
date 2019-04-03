@@ -1,36 +1,65 @@
 package main
 
 import (
-	proto "github.com/golang/protobuf/proto"
 	"math/rand"
 	"net/http"
 	"time"
-	"wsrpcgo/protobuf"
+	tmp "wsrpcgo/protobuf"
+
+	proto "github.com/golang/protobuf/proto"
 )
 
+/*
+RoomServer ...
+
+*/
 type RoomServer struct {
 	setting        *tmp.RoomSetting
-	connectionById map[string]*RoomConn
+	connectionByID map[string]*RoomConn
 	history        History
 	alive          bool
 }
 
+/*
+GetHandler ...
+*/
 func (rs *RoomServer) GetHandler() http.Handler {
 	return roomServerHandler{rs: rs}
 }
 
+/*
+AddConnection ...
+*/
 func (rs *RoomServer) AddConnection(id string) error {
-	rs.connectionById[id] = &RoomConn{id: id}
+	rs.connectionByID[id] = &RoomConn{id: id}
+	rs.appendRawCommand(&tmp.Command{
+		Command: &tmp.Command_IdCommand{
+			IdCommand: &tmp.IdCommand{
+				NewId: id,
+			},
+		},
+	})
 	return nil
 }
 
+/*
+Close ...
+*/
 func (rs *RoomServer) Close() {
 	rs.alive = false
 }
 
+func (rs *RoomServer) appendRawCommand(command *tmp.Command) {
+	rawCommand, _ := proto.Marshal(command)
+	rs.history.AppendCommand(rawCommand)
+}
+
+/*
+NewRoomServer ...
+*/
 func NewRoomServer(setting *tmp.RoomSetting) (rs *RoomServer) {
 	rs = &RoomServer{
-		connectionById: make(map[string]*RoomConn),
+		connectionByID: make(map[string]*RoomConn),
 		history:        CreateHistory(),
 		setting:        setting,
 		alive:          true,
@@ -45,15 +74,13 @@ func NewRoomServer(setting *tmp.RoomSetting) (rs *RoomServer) {
 					break
 				}
 				rand.Read(randomBuffer)
-				tick := tmp.Command{
+				rs.appendRawCommand(&tmp.Command{
 					Command: &tmp.Command_TickCommand{
 						TickCommand: &tmp.TickCommand{
 							RandomSeed: randomBuffer,
 						},
 					},
-				}
-				rawCommand, _ := proto.Marshal(&tick)
-				rs.history.AppendCommand(rawCommand)
+				})
 			}
 		}()
 	}
@@ -71,7 +98,7 @@ func (rsh roomServerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing id", http.StatusBadRequest)
 		return
 	}
-	if rc, ok := rsh.rs.connectionById[id]; ok {
+	if rc, ok := rsh.rs.connectionByID[id]; ok {
 		rc.Connect(rsh.rs, w, r)
 	} else {
 		http.Error(w, "Id not found", http.StatusBadRequest)

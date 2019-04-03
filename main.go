@@ -2,11 +2,13 @@ package main
 
 import (
 	"flag"
-	"github.com/gorilla/websocket"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 var (
@@ -38,6 +40,9 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
+/*
+haha
+*/
 func serveHome(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	if r.URL.Path != "/" {
@@ -60,5 +65,6 @@ func main() {
 	roomServer := NewRoomServer(nil)
 	http.HandleFunc("/", serveHome)
 	http.Handle("/ws", roomServer.GetHandler())
+	fmt.Printf("now serving %s\n", *addr)
 	log.Fatal(http.ListenAndServeTLS(*addr, "../../../tmpr/server.crt", "../../../tmpr/server.key", nil))
 }

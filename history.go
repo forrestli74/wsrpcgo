@@ -4,6 +4,9 @@ import (
 	"sync"
 )
 
+/*
+RawCommand ...
+*/
 type RawCommand []byte
 
 type history struct {
@@ -11,11 +14,17 @@ type history struct {
 	mutex    *sync.RWMutex
 }
 
+/*
+History ...
+*/
 type History interface {
 	AppendCommand(command RawCommand)
 	CreateChan(index int) <-chan RawCommand
 }
 
+/*
+CreateHistory ...
+*/
 func CreateHistory() History {
 	h := history{
 		mutex: &sync.RWMutex{},
