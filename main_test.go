@@ -1,9 +1,10 @@
 package main
 
 import (
-	proto "github.com/golang/protobuf/proto"
 	"testing"
-	"wsrpcgo/protobuf"
+
+	proto "github.com/golang/protobuf/proto"
+	tmp "github.com/lijiaqigreat/wsrpcgo/protobuf"
 )
 
 // func TestRoomServer_ConnectMs_Connects(t *testing.T) {

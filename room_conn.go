@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	proto "github.com/golang/protobuf/proto"
-	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
-	"wsrpcgo/protobuf"
+
+	proto "github.com/golang/protobuf/proto"
+	"github.com/gorilla/websocket"
+	tmp "github.com/lijiaqigreat/wsrpcgo/protobuf"
 )
 
 type RoomConnState struct {

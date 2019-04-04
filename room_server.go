@@ -4,9 +4,9 @@ import (
 	"math/rand"
 	"net/http"
 	"time"
-	tmp "wsrpcgo/protobuf"
 
 	proto "github.com/golang/protobuf/proto"
+	tmp "github.com/lijiaqigreat/wsrpcgo/protobuf"
 )
 
 /*

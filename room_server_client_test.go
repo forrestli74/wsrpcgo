@@ -1,19 +1,26 @@
 package main
 
 import (
-	proto "github.com/golang/protobuf/proto"
-	"github.com/gorilla/websocket"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"wsrpcgo/protobuf"
+
+	proto "github.com/golang/protobuf/proto"
+	"github.com/gorilla/websocket"
+	tmp "github.com/lijiaqigreat/wsrpcgo/protobuf"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
 func makeWsProto(s string) string {
 	return "ws" + strings.TrimPrefix(s, "http")
+}
+
+func assertProtoEqual(t *testing.T, actual, expected proto.Message) {
+	if !proto.Equal(actual, expected) {
+		t.Errorf("actual=%v expect=%s", actual, expected)
+	}
 }
 
 func TestRoomServerClientSuite(t *testing.T) {
@@ -27,7 +34,7 @@ type RoomServerClientSuite struct {
 	dialer *websocket.Dialer
 }
 
-func (s *RoomServerClientSuite) AddAndConnectId(id string) (*websocket.Conn, *http.Response, error) {
+func (s *RoomServerClientSuite) AddAndConnectID(id string) (*websocket.Conn, *http.Response, error) {
 	s.rs.AddConnection(id)
 	url := makeWsProto(s.server.URL + "?id=" + id)
 	return s.dialer.Dial(url, nil)
@@ -56,29 +63,49 @@ func (s *RoomServerClientSuite) TestGet400WhenIdNotFound() {
 	assert.Equal(s.T(), response.StatusCode, http.StatusBadRequest)
 }
 
+func (s *RoomServerClientSuite) TestSendsIdCommandOnJoin() {
+	id := "test"
+	ws, _, _ := s.AddAndConnectID(id)
+	_, wsMessage, _ := ws.ReadMessage()
+	actual := new(tmp.Command)
+	proto.Unmarshal(wsMessage, actual)
+
+	assertProtoEqual(s.T(), actual, &tmp.Command{
+		Command: &tmp.Command_IdCommand{
+			IdCommand: &tmp.IdCommand{
+				NewId: id,
+			},
+		},
+	})
+}
+
 func (s *RoomServerClientSuite) TestForwardsCommandToEveryone() {
 	id1 := "test1"
 	id2 := "test2"
-	ws1, _, _ := s.AddAndConnectId(id1)
-	ws2, _, _ := s.AddAndConnectId(id2)
+	ws1, _, _ := s.AddAndConnectID(id1)
+	ws2, _, _ := s.AddAndConnectID(id2)
 	message := []byte("hello")
 
 	ws1.WriteMessage(websocket.BinaryMessage, message)
+
+	// skip id command
+	ws1.ReadMessage()
+	ws2.ReadMessage()
+	ws1.ReadMessage()
+	ws2.ReadMessage()
+
 	_, wsMessage, _ := ws1.ReadMessage()
 	_, wsMessage2, _ := ws2.ReadMessage()
-	var actual tmp.Command
-	proto.Unmarshal(wsMessage, &actual)
-	expected := tmp.Command{
+
+	assert.Equal(s.T(), wsMessage, wsMessage2)
+	actual := new(tmp.Command)
+	proto.Unmarshal(wsMessage, actual)
+	assertProtoEqual(s.T(), actual, &tmp.Command{
 		Command: &tmp.Command_WriterCommand{
 			WriterCommand: &tmp.WriterCommand{
 				Id:      id1,
 				Command: message,
 			},
 		},
-	}
-
-	assert.Equal(s.T(), wsMessage, wsMessage2)
-	if !proto.Equal(&actual, &expected) {
-		s.T().Errorf("actual=%s expect=%s", actual.String(), expected.String())
-	}
+	})
 }

@@ -4,8 +4,8 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	//"github.com/gorilla/websocket"
 	"testing"
-	tmp "wsrpcgo/protobuf"
 
+	tmp "github.com/lijiaqigreat/wsrpcgo/protobuf"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
