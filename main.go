@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	tmp "github.com/lijiaqigreat/wsrpcgo/protobuf"
 )
 
 var (
@@ -63,8 +64,11 @@ func main() {
 		log.Fatal(err)
 	}
 	roomServer := NewRoomServer(nil)
-	http.HandleFunc("/", serveHome)
-	http.Handle("/ws", roomServer.GetHandler())
+	twirpHandler := tmp.NewRoomServiceServer(roomServer, nil)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", serveHome)
+	mux.Handle(twirpHandler.PathPrefix(), twirpHandler)
+	mux.Handle("/ws", roomServer.GetHandler())
 	fmt.Printf("now serving %s\n", *addr)
-	log.Fatal(http.ListenAndServeTLS(*addr, "../../../tmpr/server.crt", "../../../tmpr/server.key", nil))
+	log.Fatal(http.ListenAndServeTLS(*addr, "server.cert", "server.key", mux))
 }

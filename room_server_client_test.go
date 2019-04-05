@@ -35,7 +35,9 @@ type RoomServerClientSuite struct {
 }
 
 func (s *RoomServerClientSuite) AddAndConnectID(id string) (*websocket.Conn, *http.Response, error) {
-	s.rs.AddConnection(id)
+	s.rs.AddWriter(nil, &tmp.AddWriterRequest{
+		ProposedIds: []string{id},
+	})
 	url := makeWsProto(s.server.URL + "?id=" + id)
 	return s.dialer.Dial(url, nil)
 }

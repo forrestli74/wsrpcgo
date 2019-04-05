@@ -22,9 +22,25 @@ message WriterCommand {
   bytes command = 2;
 }
 
-/* service RoomService { */
-/*   rpc debug(DebugRequest) returns (DebugResponse) {} */
-/* } */
+service RoomService {
+  /* rpc debug(DebugRequest) returns (DebugResponse) {} */
+  /* rpc CreateRoom(CreateRoomRequest) returns (CreateRoomResponse) {} */
+  rpc AddWriter(AddWriterRequest) returns (AddWriterResponse) {}
+}
+
+message CreateRoomRequest {
+}
+
+message CreateRoomResponse {
+}
+
+message AddWriterRequest {
+  repeated string proposed_ids = 1;
+}
+
+message AddWriterResponse {
+  string id = 1;
+}
 
 
 message DebugRequest {
@@ -38,16 +54,16 @@ message DebugRequest {
   }
 }
 
-/* message DebugResponse { */
-/*   bytes b = 1; */
-/*   string s = 2; */
-/*   uint32 i32 = 3; */
-/*   uint64 i64 = 4; */
-/*   oneof oo { */
-/*     uint32 oi32 = 5; */
-/*     uint64 oi64 = 6; */
-/*   } */
-/* } */
+message DebugResponse {
+  bytes b = 1;
+  string s = 2;
+  uint32 i32 = 3;
+  uint64 i64 = 4;
+  oneof oo {
+    uint32 oi32 = 5;
+    uint64 oi64 = 6;
+  }
+}
 
 message RoomSetting {
   TickSetting tick_setting = 1;

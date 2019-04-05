@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"math/rand"
 	"net/http"
 	"time"
@@ -21,25 +22,44 @@ type RoomServer struct {
 }
 
 /*
+Debug ...
+*/
+func (rs *RoomServer) Debug(c context.Context, request *tmp.DebugRequest) (*tmp.DebugResponse, error) {
+	return nil, nil
+}
+
+/*
+CreateRoom ...
+*/
+func (rs *RoomServer) CreateRoom(c context.Context, request *tmp.CreateRoomRequest) (*tmp.CreateRoomResponse, error) {
+	return nil, nil
+}
+
+/*
+AddWriter ...
+*/
+func (rs *RoomServer) AddWriter(c context.Context, request *tmp.AddWriterRequest) (*tmp.AddWriterResponse, error) {
+	for _, id := range request.ProposedIds {
+		if _, ok := rs.connectionByID[id]; !ok {
+			rs.connectionByID[id] = &RoomConn{id: id}
+			rs.appendRawCommand(&tmp.Command{
+				Command: &tmp.Command_IdCommand{
+					IdCommand: &tmp.IdCommand{
+						NewId: id,
+					},
+				},
+			})
+			return &tmp.AddWriterResponse{Id: id}, nil
+		}
+	}
+	return &tmp.AddWriterResponse{}, nil
+}
+
+/*
 GetHandler ...
 */
 func (rs *RoomServer) GetHandler() http.Handler {
 	return roomServerHandler{rs: rs}
-}
-
-/*
-AddConnection ...
-*/
-func (rs *RoomServer) AddConnection(id string) error {
-	rs.connectionByID[id] = &RoomConn{id: id}
-	rs.appendRawCommand(&tmp.Command{
-		Command: &tmp.Command_IdCommand{
-			IdCommand: &tmp.IdCommand{
-				NewId: id,
-			},
-		},
-	})
-	return nil
 }
 
 /*
